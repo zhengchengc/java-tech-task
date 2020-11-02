@@ -1,6 +1,6 @@
 # Lunch Microservice
 
-The service provides an endpoint that will determine, from a set of recipes, what I can have for lunch today based on the contents of my fridge, so that I can quickly decide what I’ll be having to eat and the ingredients required to prepare the meal.
+The service provides an endpoint that will determine, from a set of recipes, what I can have for lunch at a given date, based on my fridge ingredient's expiry date, so that I can quickly decide what I’ll be having to eat, and the ingredients required to prepare the meal.
 
 ## Local development
 
