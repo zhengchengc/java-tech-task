@@ -10,18 +10,24 @@ The service provides an endpoint that will determine, from a set of recipes, wha
 ### Run
 
 1. Start database:
+
     ```
     docker-compose up -d
     ```
    
-1. Add test data from  `sql/lunch-data.sql` to the database. Here's a helper script if you prefer:
+2. Add test data from  `sql/lunch-data.sql` to the database. Here's a helper script if you prefer:
 
-    ```bash
-   CONTAINER_ID=$(docker inspect --format="{{.Id}}" lunch-db)
-   
-   docker cp sql/lunch-data.sql $CONTAINER_ID:/lunch-data.sql
-   
-   docker exec $CONTAINER_ID /bin/sh -c 'mysql -u root -prezdytechtask lunch </lunch-data.sql'
-   ```
 
-1. Run Springboot LunchApplication
+    ```
+    CONTAINER_ID=$(docker inspect --format="{{.Id}}" lunch-db)
+    ```
+    
+    ```
+    docker cp sql/lunch-data.sql $CONTAINER_ID:/lunch-data.sql
+    ```
+    
+    ```
+    docker exec $CONTAINER_ID /bin/sh -c 'mysql -u root -prezdytechtask lunch </lunch-data.sql'
+    ```
+    
+3. Run Springboot LunchApplication
