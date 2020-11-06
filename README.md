@@ -4,8 +4,10 @@ The service provides an endpoint that will determine, from a set of recipes, wha
 
 ## Prerequisites
 
-* [Docker](https://docs.docker.com/get-docker/) & [Docker-Compose](https://docs.docker.com/compose/install/)
 * [Java 11 Runtime](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)
+* [Docker](https://docs.docker.com/get-docker/) & [Docker-Compose](https://docs.docker.com/compose/install/)
+
+*Note: Docker is used for the local MySQL database instance, feel free to use your own instance or any other SQL database.* 
 
 ### Run
 
