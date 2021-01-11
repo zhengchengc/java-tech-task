@@ -1,11 +1,9 @@
 package com.rezdy.lunch.controller;
 
 import com.rezdy.lunch.service.LunchService;
-import com.rezdy.lunch.service.Recipe;
+import com.rezdy.lunch.model.Recipe;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,7 +18,8 @@ public class LunchController {
         this.lunchService = lunchService;
     }
 
-    @PostMapping("/lunch")
+
+    @GetMapping("/lunch")
     public List<Recipe> getRecipes(@RequestParam(value = "date") String date) {
         return lunchService.getNonExpiredRecipesOnDate(LocalDate.parse(date));
     }
