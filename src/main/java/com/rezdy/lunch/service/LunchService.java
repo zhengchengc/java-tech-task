@@ -1,13 +1,19 @@
 package com.rezdy.lunch.service;
 
+import com.rezdy.lunch.model.Ingredient;
 import com.rezdy.lunch.model.Recipe;
+import com.rezdy.lunch.repository.RecipeRepository;
+import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LunchService {
@@ -15,37 +21,77 @@ public class LunchService {
     @Autowired
     private EntityManager entityManager;
 
-    private List<Recipe> recipesSorted;
+    @Autowired
+    private RecipeRepository recipeRepository;
 
-    public List<Recipe> getNonExpiredRecipesOnDate(LocalDate date) {
-        List<Recipe> recipes = loadRecipes(date);
+    /**
+     * This method returns recipes exclude the list of ingredients
+     * Ingredients needs to be submitted seperated by ","
+     * @param date
+     * @param excludeIngredient
+     * @return list of recipes
+     */
+    public List<Recipe> getNonExpiredRecipesOnDate(LocalDate date, String excludeIngredient) {
+        List<String> exclude = new ArrayList<>();
 
-        sortRecipes(recipes);
+        if (excludeIngredient != null) {
+            exclude = Arrays.asList(excludeIngredient.split(","));
+        }
 
-        return recipesSorted;
+        List<Recipe> recipes = loadRecipes(date, exclude);
+
+        return recipes;
     }
 
-    private void sortRecipes(List<Recipe> recipes) {
-        recipesSorted = recipes; //TODO sort recipes considering best-before
+    /**
+     * This method checks the recipe has expired ingredient or the ingredient is on excluded list
+     * @param recipe
+     * @param localDate
+     * @param excludeIngredient
+     * @return boolean value
+     */
+    public boolean hasExpiredIngredient(Recipe recipe, LocalDate localDate, List<String> excludeIngredient) {
+        if (recipe.getIngredients() != null) {
+            for (Ingredient ingredient : recipe.getIngredients()) {
+                if (ingredient.getUseBy().isBefore(localDate)) {
+                    return true;
+                }
+                if (excludeIngredient != null && excludeIngredient.contains(ingredient.getTitle())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return false;
     }
 
-    public List<Recipe> loadRecipes(LocalDate date) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Recipe> criteriaQuery = cb.createQuery(Recipe.class);
-        Root<Recipe> recipeRoot = criteriaQuery.from(Recipe.class);
+    /**
+     * This method returns recipes meet the requirements
+     * @param localDate
+     * @param excludeIngredient
+     * @return
+     */
+    public List<Recipe> loadRecipes(LocalDate localDate, List<String> excludeIngredient) {
+        List<Recipe> recipes = new ArrayList<>();
+        List<Recipe> allRecipes = recipeRepository.findAll();
 
-        CriteriaQuery<Recipe> query = criteriaQuery.select(recipeRoot);
+        if (allRecipes != null) {
+            for (Recipe recipe : allRecipes) {
+                if (!hasExpiredIngredient(recipe, localDate, excludeIngredient)) {
+                    recipes.add(recipe);
+                }
+            }
+        }
+        return recipes;
+    }
 
-        Subquery<Recipe> nonExpiredIngredientSubquery = query.subquery(Recipe.class);
-        Root<Recipe> nonExpiredIngredient = nonExpiredIngredientSubquery.from(Recipe.class);
-        nonExpiredIngredientSubquery.select(nonExpiredIngredient);
-
-        Predicate matchingRecipe = cb.equal(nonExpiredIngredient.get("title"), recipeRoot.get("title"));
-        Predicate expiredIngredient = cb.lessThan(nonExpiredIngredient.join("ingredients").get("useBy"), date);
-
-        Predicate allNonExpiredIngredients = cb.exists(nonExpiredIngredientSubquery.where(matchingRecipe, expiredIngredient));
-
-        return entityManager.createQuery(query.where(allNonExpiredIngredients)).getResultList();
+    /**
+     * This method returns recipe with provide title
+     * @param title
+     * @return recipe
+     */
+    public Recipe getRecipesByTitle(String title) {
+        return recipeRepository.findByTitle(title);
     }
 
 }
