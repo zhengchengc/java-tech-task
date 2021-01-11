@@ -34,3 +34,27 @@ The service provides an endpoint that will determine, from a set of recipes, wha
     ```
     
 3. Run Springboot LunchApplication
+
+### Update 2021-01-12
+
+1. The `/lunch` endpoint has been updated to `GET` method. Two params for this endpoint:
+
+    1.1 The `date` param is required and should provide in ISO standard. For example: 
+    
+    ```
+    locahost:8080/lunch?date=2020-01-12
+    ```
+    
+    1.2 The `exclude` param is optional and the default value is null, if provide should be ingredients seperated by ",". For example: 
+    
+    ```
+    localhost:8080/lunch?date=2020-01-12&exclude=ham,hotdog
+    ```
+
+2. New endpoint `/recipe` added to get recipe by title. If no recipe with the title return 404 status. For example:
+
+    ```
+    localhost:8080/recipe?title=ham
+    ```
+
+3. Tests cover database connections, ORM and manual tests on REST API with Postman
